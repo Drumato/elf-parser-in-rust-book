@@ -1,14 +1,15 @@
 title: "最小限で理解しつつ作るELF parser入門 in Rust"
-summary: |
+summary: |-
   誰も書いていなさそうだったので．
   Linux OSで標準採用されているexecutable formatのELFを理解するために，
   Rustでnom(parser combintor)を使いながらサクッとELF parserを実装します．
   かなり初歩的なことから話すので，前提知識はほぼ必要ないと思います．
   有料にしている理由も特にないので，
   最終の空ページのみ有料にしています．
-topics: ["rust", "ELF", "nom"] # トピック（5つまで）
-published: true # falseだと下書き
-price: 200 # 有料の場合200〜5000
+topics: ["rust", "elf", "nom"]
+published: true
+price: 200
+allow_override: true
 chapters:
 - ch01
 - ch02
