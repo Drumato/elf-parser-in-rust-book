@@ -1,4 +1,4 @@
-title: "最小限で理解しつつ作るELF parser入門 in Rust"
+title: "[全部無料]最小限で理解しつつ作るELF parser入門 in Rust"
 summary: |-
   誰も書いていなさそうだったので．
   Linux OSで標準採用されているexecutable formatのELFを理解するために，
