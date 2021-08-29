@@ -1,6 +1,5 @@
 use nom::multi::count;
 use nom::number::complete::{le_u16, le_u32, le_u64};
-use nom::sequence::tuple;
 use nom::IResult;
 use nom::{bytes::complete::tag, combinator::map, number::complete::u8 as read_u8};
 
@@ -8,31 +7,23 @@ use crate::elf::{
     ElfClass, ElfData, ElfHeader64, ElfIdentification, ElfOsAbi, ElfVersion, ELF_MAGIC_SIGNATURE,
 };
 
-pub fn parse_64bit_elf_header_64bit(raw: &[u8]) -> IResult<&[u8], ElfHeader64> {
-    let (rest, id) = parse_elf_identification(raw)?;
-    let (
-        rest2,
-        (
-            ty,
-            machine,
-            version,
-            entry,
-            pht_offset,
-            sht_offset,
-            flags,
-            size,
-            pht_entry_size,
-            pht_entries,
-            sht_entry_size,
-            sht_entries,
-            sht_string_table_index,
-        ),
-    ) = tuple((
-        le_u16, le_u16, le_u32, le_u64, le_u64, le_u64, le_u32, le_u16, le_u16, le_u16, le_u16,
-        le_u16, le_u16,
-    ))(rest)?;
+pub fn parse_64bit_elf_header(raw: &[u8]) -> IResult<&[u8], ElfHeader64> {
+    let (r, id) = parse_elf_identification(raw)?;
+    let (r, ty) = le_u16(r)?;
+    let (r, machine) = le_u16(r)?;
+    let (r, version) = le_u32(r)?;
+    let (r, entry) = le_u64(r)?;
+    let (r, pht_offset) = le_u64(r)?;
+    let (r, sht_offset) = le_u64(r)?;
+    let (r, flags) = le_u32(r)?;
+    let (r, size) = le_u16(r)?;
+    let (r, pht_entry_size) = le_u16(r)?;
+    let (r, pht_entries) = le_u16(r)?;
+    let (r, sht_entry_size) = le_u16(r)?;
+    let (r, sht_entries) = le_u16(r)?;
+    let (r, sht_string_table_index) = le_u16(r)?;
     Ok((
-        rest2,
+        r,
         ElfHeader64 {
             id,
             ty,
@@ -77,18 +68,16 @@ fn parse_elf_abi_version(raw: &[u8]) -> IResult<&[u8], u8> {
 }
 
 fn parse_elf_identification(raw: &[u8]) -> IResult<&[u8], ElfIdentification> {
-    let (rest, (_, class, data, version, osabi, abi_version, _)) = tuple((
-        parse_elf_magic_number,
-        parse_elf_class,
-        parse_elf_data,
-        parse_elf_version,
-        parse_elf_osabi,
-        parse_elf_abi_version,
-        count(read_u8, 7),
-    ))(raw)?;
+    let (r, _) = parse_elf_magic_number(raw)?;
+    let (r, class) = parse_elf_class(r)?;
+    let (r, data) = parse_elf_data(r)?;
+    let (r, version) = parse_elf_version(r)?;
+    let (r, osabi) = parse_elf_osabi(r)?;
+    let (r, abi_version) = parse_elf_abi_version(r)?;
+    let (r, _padding) = count(read_u8, 7)(r)?;
 
     Ok((
-        rest,
+        r,
         ElfIdentification {
             class,
             data,
@@ -176,7 +165,7 @@ mod tests {
     #[test]
     fn elf_header64_test() {
         helper(
-            parse_64bit_elf_header_64bit,
+            parse_64bit_elf_header,
             &[
                 // 0x00 ~ 0x10
                 0x7f, 0x45, 0x4c, 0x46, 0x02, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
