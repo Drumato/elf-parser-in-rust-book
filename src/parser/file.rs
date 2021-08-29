@@ -3,8 +3,8 @@ use nom::IResult;
 use crate::elf::{Elf64, Section64};
 
 use super::{
-    header::parse_64bit_elf_header, section::parse_64bit_section_header_table,
-    string_table::parse_string_table_entry,
+    header::parse_64bit_elf_header, program_header::parse_64bit_program_header_table,
+    section::parse_64bit_section_header_table, string_table::parse_string_table_entry,
 };
 
 pub fn parse_64bit_elf(raw: &[u8]) -> IResult<&[u8], Elf64> {
@@ -24,5 +24,16 @@ pub fn parse_64bit_elf(raw: &[u8]) -> IResult<&[u8], Elf64> {
         })
         .collect::<Vec<Section64>>();
 
-    Ok((&raw[raw.len()..], Elf64 { header, sections }))
+    let (_, pht) = parse_64bit_program_header_table(header.pht_entries as usize)(
+        &raw[header.pht_offset as usize..],
+    )?;
+
+    Ok((
+        &raw[raw.len()..],
+        Elf64 {
+            header,
+            sections,
+            pht,
+        },
+    ))
 }

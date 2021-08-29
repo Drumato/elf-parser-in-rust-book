@@ -55,5 +55,16 @@ fn main() -> io::Result<()> {
         }
     }
 
+    {
+        for (i, ph) in elf_file.pht.iter().enumerate() {
+            println!("ProgramHeader[{}]:", i);
+            println!("\tType: {:?}", ph.ty);
+            println!("\tVirtAddr: 0x{:x}", ph.virtual_addr);
+            println!("\tPhysAddr: 0x{:x}", ph.physical_addr);
+            println!("\tFileSize: 0x{:x}", ph.size_in_file);
+            println!("\tMemSize: 0x{:x}", ph.size_in_mem);
+        }
+    }
+
     Ok(())
 }
